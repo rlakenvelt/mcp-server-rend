@@ -35,7 +35,6 @@ mcp.registerTool(
         title: 'Tool to get the weather for a city',
         description: 'Tool to get the weather for a city',
         inputSchema: { city: z.string().describe('The name of the city to get the weather for') },
-        outputSchema: { echo: z.string() }
     },  
 
   async ({ city }) => {
@@ -49,7 +48,7 @@ mcp.registerTool(
         content: [
           {
             type: 'text',
-            text: `City ${city} not found.`,
+            text: `Stad ${city} niet gevonden.`,
           }
         ]
       }
@@ -69,7 +68,7 @@ mcp.registerTool(
           text: JSON.stringify(weatherData, null, 2),
         }
       ],
-        structuredContent: { echo: `Weather data for ${city} retrieved successfully.` }
+      structuredContent: weatherData
     }
   }
 );
