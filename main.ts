@@ -28,6 +28,54 @@ mcp.registerTool(
     }
 );
 
+
+mcp.registerTool(
+  'get-weather',
+    {
+        title: 'Tool to get the weather for a city',
+        description: 'Tool to get the weather for a city',
+        inputSchema: { city: z.string().describe('The name of the city to get the weather for') },
+        outputSchema: { echo: z.string() }
+    },  
+
+  async ({ city }) => {
+    // get coordinates for the city
+    const response = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=10&language=en&format=json`);
+    const data = await response.json();
+
+    // handle city not found
+    if (data.results.length === 0) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `City ${city} not found.`,
+          }
+        ]
+      }
+    }
+
+    // get the weather data using the coordinates
+    const { latitude, longitude } = data.results[0];
+
+    const weatherResponse = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m&current=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation,rain,showers,cloud_cover,apparent_temperature`)
+
+    const weatherData = await weatherResponse.json();
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(weatherData, null, 2),
+        }
+      ],
+        structuredContent: { echo: `Weather data for ${city} retrieved successfully.` }
+    }
+  }
+);
+
+
+
 const port = Number.parseInt(process.env.PORT || '3000');
 interface ServerError extends Error {
     code?: string;
